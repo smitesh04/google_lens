@@ -83,6 +83,12 @@ try:
 
     time.sleep(5)
 
+    # time.sleep(5)
+
+    # pyautogui.moveTo(x=1625, y=767, duration=1.5)
+    # pyautogui.click()
+    # # action_chains.context_click().perform()
+
     # Get current window handle before interacting with the side panel
     main_window = driver.current_window_handle
 
@@ -96,18 +102,49 @@ try:
         # Now you can check if the window has the Google Lens side panel
         # Example: Check if the side panel contains a known element
         try:
-            # Find the shadow host
+
+            # Wait for the lens-side-panel-app to be present
+            wait = WebDriverWait(driver, 10)
+
+            # Get the shadow host element (lens-side-panel-app)
             shadow_host = driver.find_element(By.CSS_SELECTOR, "lens-side-panel-app")
 
-            # Use JavaScript to access the shadow root
             shadow_root = driver.execute_script('return arguments[0].shadowRoot', shadow_host)
+            time.sleep(2)
 
-            # Now you can interact with elements inside the shadow DOM
-            # Example: Finding an element inside the shadow DOM
-            inner_element = shadow_root.find_element(By.CSS_SELECTOR, "your-inner-element-selector")
+            # actions = ActionChains(driver)
+            #
+            # # pyautogui.moveTo(x=1534, y=538, duration=1.5)
+            # # action_chains.move_by_offset(1534, 538)  # Coordinates from the top-left corner (100, 100 as an example)
+            #
+            # # pyautogui.click()
+            # actions.context_click(shadow_root).perform()
+            action_chains = ActionChains(driver)
+            action_chains.send_keys(Keys.PAGE_DOWN).perform()
+            time.sleep(2)
+            action_chains.move_by_offset(100, 100)  # Coordinates from the top-left corner (100, 100 as an example)
+            action_chains.context_click().perform()
+            pyautogui.moveTo(x=1575, y=727, duration=1)
+            pyautogui.click()
+            time.sleep(3)
 
-            # Example: Clicking on an element inside the shadow DOM
-            inner_element.click()
+            pyautogui.moveTo(x=208, y=353, duration=1)
+            pyautogui.click()
+            pyautogui.moveTo(x=228, y=380, duration=1)
+            pyautogui.click()
+
+            time.sleep(60)
+
+            # Access the shadow DOM
+
+            # Example of finding elements inside the shadow DOM (adjust the selector as needed)
+            # For instance, locating all links or product containers
+            product_links = shadow_root.find_elements(By.CSS_SELECTOR, "a.LBcIee")
+
+            # Extract and print links
+            for product in product_links:
+                link = product.get_attribute('href')  # Assuming they are anchor tags with href attributes
+                print(link)
         except:
             # If not found, continue
             continue
