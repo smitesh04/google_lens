@@ -65,11 +65,22 @@ pyautogui.click()
 all_tabs = page.tab_ids
 for t in all_tabs:
 
-    response = page.get_tab(t).html
+    # response = page.get_tab(t).html
 
-    page.activate_tab(int(t))
-    element = page.ele('@src=side_panel_app.js')
 
+    # page.activate_tab(int(t))
+    try:
+        element = page.get_tab(t).ele('tag:lens-side-panel-app').sr.ele('tag:iframe')
+        texttt = page.get_tab(t).ele('tag:lens-side-panel-app').sr.ele('tag:iframe').html
+        import re
+        links = set(re.findall('(https://www.shopsy.*?)"', texttt))
+        snu_links = list()
+        for link in links:
+            if 'SNU' in link:
+                snu_links.append(link)
+        print(len(snu_links))
+        print(snu_links)
+    except:pass
 
 time.sleep(5)
 
