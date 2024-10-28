@@ -5,6 +5,10 @@ import pyautogui
 import re
 from urllib.parse import unquote
 import html
+import pytesseract
+from PIL import ImageGrab
+from corners import corners_fun, crop_window_excluding_ui
+
 
 def google_lens_search_by_image(image_link):
     # Generate a random user agent
@@ -16,13 +20,63 @@ def google_lens_search_by_image(image_link):
     # Navigate to the website
     # url = 'https://images.meesho.com/images/products/303431895/4e68v_512.jpg'
     page.get(image_link)
+    page.set.window.max()
 
     # Wait for the page to load completely
     time.sleep(2)
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+    screenshot_main = ImageGrab.grab()
+
+    # Save the screenshot (optional, for debugging)
+    screenshot_main.save("screenshot_main.png")
+    cropped = crop_window_excluding_ui('screenshot_main.png')
 
     # To right click on the window
     pyautogui.moveTo(x=400, y=400, duration=1)  # Set the x and y to the actual position of 'Search with Google Lens'
     pyautogui.rightClick()
+
+
+    ###
+    # pytesseract.pytesseract.tesseract_cmd = r'C:/Users/Actowiz/Desktop/Smitesh_Docs/tesseract-ocr-w64-setup-5.4.0.20240606.exe'
+    # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+
+    # Capture the screen (can be the full screen or a region where the context menu is)
+    screenshot = ImageGrab.grab()
+
+    # Save the screenshot (optional, for debugging)
+    screenshot.save("screenshot.png")
+
+    # Use pytesseract to perform OCR on the screenshot
+    text_and_boxes = pytesseract.image_to_data(screenshot, output_type=pytesseract.Output.DICT)
+
+    # Search for the word "Search with Google Lens" in the detected text
+    for i, word in enumerate(text_and_boxes['text']):
+        # if "Search with Google Lens" in word:
+        if "Lens" in word:
+            x = text_and_boxes['left'][i]
+            y = text_and_boxes['top'][i]
+            width = text_and_boxes['width'][i]
+            height = text_and_boxes['height'][i]
+
+            # Calculate the center of the text box
+            center_x = x + width // 2
+            center_y = y + height // 2
+
+            # Print the coordinates for debugging
+            print(f"Found 'Search with Google Lens' at ({center_x}, {center_y})")
+
+            # Click the center of the found text
+            pyautogui.click(center_x, center_y)
+            break
+    else:
+        print("Could not find 'Search with Google Lens' in the screenshot.")
+    ###
+
+
+
+
+    corners = corners_fun('screenshot_main.png')
 
     # To click on Search With Google Lens
     pyautogui.moveTo(x=461, y=725, duration=1)  # Set the x and y to the actual position of 'Search with Google Lens'
@@ -63,13 +117,16 @@ def google_lens_search_by_image(image_link):
                 links = set(re.findall('(https://www.shopsy.*?)"', texttt))
                 snu_links = list()
                 for link in links:
-                    if 'SNU' in link:
-                        link = link.encode('utf-8').decode('unicode_escape')
-                        link = unquote(link)
-                        link = html.unescape(link)
+                    # if 'SNU' in link:
+                    link = link.encode('utf-8').decode('unicode_escape')
+                    link = unquote(link)
+                    link = html.unescape(link)
+                    try:
                         link = re.findall('(https.*?pid.*?)&', link)[0]
                         if link not in snu_links:
                             snu_links.append(link)
+                    except:pass
+
                 print(len(snu_links))
                 print(snu_links)
                 break
@@ -81,5 +138,5 @@ def google_lens_search_by_image(image_link):
 
 if __name__ == '__main__':
 
-    url = 'https://images.meesho.com/images/products/303431895/4e68v_512.jpg'
+    url = 'https://images.meesho.com/images/products/41815313/ydyt9_512.jpg'
     google_lens_search_by_image(url)
