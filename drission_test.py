@@ -64,9 +64,7 @@ pyautogui.click()
 
 all_tabs = page.tab_ids
 for t in all_tabs:
-
     # response = page.get_tab(t).html
-
 
     # page.activate_tab(int(t))
     try:
